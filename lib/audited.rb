@@ -1,4 +1,5 @@
 require 'active_record'
+require 'carrierwave'
 
 module Audited
   class << self

@@ -1,4 +1,6 @@
 require 'set'
+require 'carrierwave/orm/activerecord'
+require 'audited/attachment_uploader'
 
 module Audited
   # Audit saves the changes to ActiveRecord models.  It has the following attributes:
@@ -39,6 +41,8 @@ module Audited
     belongs_to :associated, polymorphic: true
 
     before_create :set_version_number, :set_audit_user, :set_request_uuid, :set_remote_address
+
+    mount_uploader :attachment, Audited::AttachmentUploader
 
     cattr_accessor :audited_class_names
     self.audited_class_names = Set.new
@@ -166,6 +170,11 @@ module Audited
     # use created_at as timestamp cache key
     def self.collection_cache_key(collection = all, timestamp_column = :created_at)
       super(collection, :created_at)
+    end
+
+    # returns attachment url
+    def attachment_url
+      attachment&.url
     end
 
     private

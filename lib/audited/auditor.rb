@@ -43,7 +43,7 @@ module Audited
 
         class_attribute :audit_associated_with,   instance_writer: false
         class_attribute :audited_options,       instance_writer: false
-        attr_accessor :version, :audit_comment
+        attr_accessor :version, :audit_comment, :audit_file
 
         self.audited_options = options
         normalize_audited_options
@@ -53,6 +53,10 @@ module Audited
         if audited_options[:comment_required]
           validates_presence_of :audit_comment, if: :auditing_enabled
           before_destroy :require_comment
+        end
+
+        if options[:attachment_required]
+          validates_presence_of :audit_file, if: :auditing_enabled
         end
 
         has_many :audits, -> { order(version: :asc) }, as: :auditable, class_name: Audited.audit_class.name, inverse_of: :auditable
@@ -198,13 +202,13 @@ module Audited
 
       def audit_create
         write_audit(action: 'create', audited_changes: audited_attributes,
-                    comment: audit_comment)
+                    comment: audit_comment, attachment: audit_file)
       end
 
       def audit_update
         unless (changes = audited_changes).empty? && audit_comment.blank?
           write_audit(action: 'update', audited_changes: changes,
-                      comment: audit_comment)
+                      comment: audit_comment, attachment: audit_file)
         end
       end
 

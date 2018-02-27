@@ -15,6 +15,7 @@ class <%= migration_class_name %> < <%= migration_parent %>
       t.column :remote_address, :string
       t.column :request_uuid, :string
       t.column :created_at, :datetime
+      t.column :attachment, :string
     end
 
     add_index :audits, [:auditable_type, :auditable_id], :name => 'auditable_index'
